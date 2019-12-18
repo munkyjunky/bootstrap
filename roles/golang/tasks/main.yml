@@ -1,0 +1,49 @@
+---
+  - name: Install GoLang
+    tags:
+      - golang
+    homebrew:
+      name: golang
+      state: present
+
+  - name: Create home folder
+    file:
+      path: "{{ansible_env.HOME}}/{{item}}"
+      mode: 0700
+      state: directory
+    with_items:
+      - .go
+      - .go/src
+      - .go/src/github.com
+
+  - name: Check for existing ~/.zshrc
+    tags:
+      - kubernetes
+      - zsh
+    stat:
+      path: "{{ansible_env.HOME}}/.zshrc"
+    register: zshrc
+
+  - name: Add ZSH plugin
+    tags:
+      - golang
+      - zsh
+    replace:
+      path: "{{ansible_env.HOME}}/.zshrc"
+      regexp: ^plugins=\((.*)\)
+      replace: plugins=(\1 golang)
+    when: zshrc.stat.exists == true
+
+  - name: Add GoLang to .zshrc
+    tags:
+      - golang
+      - zsh
+    when: zshrc.stat.exists == true
+    blockinfile:
+      path: "{{ansible_env.HOME}}/.zshrc"
+      state: present
+      marker: "# {mark} ANSIBLE MANAGED BLOCK - GOLANG"
+      block: |
+          export GOPATH="$HOME/.go"
+          export GOROOT="$(brew --prefix golang)/libexec"
+          export PATH="$PATH:${GOPATH}/bin:${GOROOT}/bin"

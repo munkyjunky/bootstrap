@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Attempts a git push, and automatically sets upstream if not set
+BRANCH_NAME=$(git branch | grep \* | cut -d ' ' -f2-)
+
+OUTPUT=$(git push --follow-tags 2>&1)
+
+if [[ $OUTPUT == *"no upstream branch"* ]]; then
+    git push --set-upstream origin $BRANCH_NAME --follow-tags
+else
+    echo $OUTPUT
+fi

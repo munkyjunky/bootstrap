@@ -1,0 +1,35 @@
+---
+  - name: Install Kubectl
+    tags:
+      - kubernetes
+    homebrew:
+      name: kubectl,kubernetes-helm
+      state: present
+
+  - name: Check for existing ~/.zshrc
+    tags:
+      - kubernetes
+      - zsh
+    stat:
+      path: "{{ansible_env.HOME}}/.zshrc"
+    register: zshrc
+
+  - name: Add kubectl ZSH plugin
+    tags:
+      - kubernetes
+      - zsh
+    replace:
+      path: "{{ansible_env.HOME}}/.zshrc"
+      regexp: ^plugins=\((.*)\)
+      replace: plugins=(\1 kubectl)
+    when: zshrc.stat.exists == true
+
+  - name: Add Helm ZSH plugin
+    tags:
+      - kubernetes
+      - zsh
+    replace:
+      path: "{{ansible_env.HOME}}/.zshrc"
+      regexp: ^plugins=\((.*)\)
+      replace: plugins=(\1 helm)
+    when: zshrc.stat.exists == true

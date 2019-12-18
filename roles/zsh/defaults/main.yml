@@ -1,0 +1,5 @@
+---
+zsh_theme: avit
+zsh_plugins:
+  - dotenv
+  - zsh-autosuggestions

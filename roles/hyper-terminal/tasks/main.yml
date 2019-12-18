@@ -1,0 +1,21 @@
+---
+  - name: Install Hyper
+    tags:
+      - hyper
+    homebrew_cask:
+      name: hyper
+      state: present
+
+  - name: Check for existing ~/.zshrc
+    tags:
+      - hyper
+      - zsh
+    stat:
+      path: "{{ansible_env.HOME}}/.zshrc"
+    register: zshrc
+
+  - name: Create config file
+    template:
+      src: hyper-js.j2
+      dest: "{{ansible_env.HOME}}/.hyper.js"
+      mode: 0644

@@ -1,0 +1,80 @@
+---
+- hosts: localhost
+  vars_prompt:
+    - name: git_username
+      prompt: Git username
+      private: false
+      default: "{{ lookup('env','GIT_USERNAME') }}"
+
+    - name: git_email
+      prompt: Git email
+      private: false
+      default: "{{ lookup('env','GIT_EMAIL') }}"
+
+  roles:
+    - git
+    - zsh
+    - nvm
+    - terraform
+    - hyper-terminal
+    - kubernetes
+    - golang
+
+  tasks:
+    - name: Create home folder
+      file:
+        path: "{{ansible_env.HOME}}/{{item}}"
+        mode: 0700
+        state: directory
+      with_items:
+        - Projects
+        - .bin
+
+    - name: Create .bin/ files
+      template:
+        src: "bin/{{item}}.j2"
+        dest: "{{ansible_env.HOME}}/.bin/{{item}}"
+        mode: 0700
+      with_items:
+        - docker-clean
+        - git-delete-merged
+        - git-push-upstream
+        - kill-port
+        - gpristine
+
+    - name: Create home directory files
+      template:
+        src: "{{item.src}}.j2"
+        dest: "{{ansible_env.HOME}}/{{item.dest}}"
+        mode: 0600
+      with_items:
+        - { src: vimrc, dest: .vimrc }
+
+    - name: Add .bin to $PATH
+      lineinfile:
+        path: "{{ansible_env.HOME}}/.zshrc"
+        state: present
+        line: "export PATH=$PATH:{{ansible_env.HOME}}/.bin/"
+
+    - name: Install Development Programs (cask)
+      homebrew_cask:
+        name: "{{item}}"
+        state: present
+      with_items:
+        - google-chrome
+        - atom
+        - jetbrains-toolbox
+        - dotnet-sdk
+        - mono-mdk
+        - ngrok
+        - postman
+        - vagrant
+        - parallels
+        - docker
+        - microsoft-office
+        - setapp
+
+    - name : Install Development Programs
+      homebrew:
+        name: bash,bash-completion,doctl,packer
+        state: present

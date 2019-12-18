@@ -1,0 +1,77 @@
+---
+  # ZSH startup files: http://zsh.sourceforge.net/Intro/intro_3.html
+
+  - name: Install ZSH
+    tags:
+      - zsh
+    homebrew:
+      name: zsh
+      state: present
+
+  - name: Install Oh My ZSH
+    tags:
+      - zsh
+    git:
+      repo: https://github.com/robbyrussell/oh-my-zsh
+      dest: "{{ansible_env.HOME}}/.oh-my-zsh"
+    register: cloning
+
+  - name: Install ZSH syntax highlighting
+    homebrew:
+      name: zsh-syntax-highlighting
+      state: present
+
+  - name: Install ZSH autosuggestions
+    tags:
+      - zsh
+    git:
+      repo: https://github.com/zsh-users/zsh-autosuggestions
+      dest: "{{ansible_env.HOME}}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+
+  - name: Check for existing ~/.zshrc
+    tags:
+      - zsh
+    stat:
+      path: "{{ansible_env.HOME}}/.zshrc"
+    register: zshrc
+    when: cloning is success
+
+  - name: Create backup of existing ~/.zshrc
+    tags:
+      - zsh
+    copy:
+      src: "{{ansible_env.HOME}}/.zshrc"
+      dest: "{{ansible_env.HOME}}/.zshrc.pre-oh-my-zsh"
+    when: cloning is changed and zshrc.stat.exists == true
+
+  - name: Create new ~/.zshrc
+    tags:
+      - zsh
+    copy:
+      src: "{{ansible_env.HOME}}/.oh-my-zsh/templates/zshrc.zsh-template"
+      dest: "{{ansible_env.HOME}}/.zshrc"
+    when: cloning is changed or zshrc.stat.exists == false
+
+  - name: Set ZSH theme
+    tags:
+      - zsh
+    replace:
+      path: "{{ansible_env.HOME}}/.zshrc"
+      regexp: ZSH_THEME=.*
+      replace: "ZSH_THEME=\"{{zsh_theme}}\""
+
+  - name: Add ZSH plugins
+    tags:
+      - zsh
+    replace:
+      path: "{{ansible_env.HOME}}/.zshrc"
+      regexp: ^plugins=\((.*)\)
+      replace: "plugins=(\\1 {{zsh_plugins|join(' ')}})"
+
+  - name: Change default shell
+    tags:
+      - zsh
+    user:
+      name: "{{ansible_env.USER}}"
+      shell: /bin/zsh
+    become: true

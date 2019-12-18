@@ -1,0 +1,25 @@
+---
+  - name: Install Terraform
+    tags:
+      - terraform
+    homebrew:
+      name: terraform
+      state: present
+
+  - name: Check for existing ~/.zshrc
+    tags:
+      - terraform
+      - zsh
+    stat:
+      path: "{{ansible_env.HOME}}/.zshrc"
+    register: zshrc
+
+  - name: Add ZSH plugin
+    tags:
+      - terraform
+      - zsh
+    replace:
+      path: "{{ansible_env.HOME}}/.zshrc"
+      regexp: ^plugins=\((.*)\)
+      replace: plugins=(\1 terraform)
+    when: zshrc.stat.exists == true
