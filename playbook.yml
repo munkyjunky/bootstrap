@@ -62,19 +62,17 @@
         state: present
       with_items:
         - google-chrome
-        - atom
         - jetbrains-toolbox
+        - docker
         - dotnet-sdk
+        - microsoft-office
+        - nicrosoft-teams
         - mono-mdk
         - ngrok
         - postman
-        - vagrant
-        - parallels
-        - docker
-        - microsoft-office
         - setapp
 
     - name : Install Development Programs
       homebrew:
-        name: bash,bash-completion,doctl,packer
+        name: azure-cli,bash,bash-completion,curl,doctl,jq
         state: present

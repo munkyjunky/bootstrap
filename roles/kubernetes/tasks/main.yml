@@ -3,7 +3,14 @@
     tags:
       - kubernetes
     homebrew:
-      name: kubectl,kubernetes-helm
+      name: kubernetes-cli,kubernetes-helm
+      state: present
+
+  - name: Install OpenLens
+    tags:
+      - kubernetes
+    homebrew_cask:
+      name: openlens
       state: present
 
   - name: Check for existing ~/.zshrc
